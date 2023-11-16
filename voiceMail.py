@@ -8,7 +8,7 @@ import json
 
 engine = pyttsx3.init('sapi5')
 voices=engine.getProperty('voices')
-engine.setProperty('voice',voices[0].id)
+engine.setProperty('voice',voices[1].id)
 
 
 x=requests.get('http://127.0.0.1:8000/get/')
@@ -43,41 +43,40 @@ def take():
 
 #weather function
 def get_weather(place):
-    api_key = 'f12d3cc1cc034908b5290617232605'
-    base_url = 'http://api.worldweatheronline.com/premium/v1/weather.ashx'
+    api_key = 'bea3d54b2cc0b058306058ac69d75068'
+    base_url = 'http://api.openweathermap.org/data/2.5/weather'
 
     params = {
-        'key': api_key,
         'q': place,
-        'format': 'json',
-        'num_of_days': 1,
+        'appid': api_key,
+        'units': 'metric',  # Use 'imperial' for Fahrenheit
     }
 
     try:
         response = requests.get(base_url, params=params)
         data = json.loads(response.text)
 
-        if 'data' in data:
-            current_condition = data['data']['current_condition'][0]
-            temperature = current_condition['temp_C']
-            weather_desc = current_condition['weatherDesc'][0]['value']
-            humidity = current_condition['humidity']
-            wind_speed = current_condition['windspeedKmph']
+        if response.status_code == 200:
+            temperature = data['main']['temp']
+            weather_desc = data['weather'][0]['description']
+            humidity = data['main']['humidity']
+            wind_speed = data['wind']['speed']
 
             print(f"Weather in {place}:")
             print(f"Temperature: {temperature}°C")
             print(f"Weather Description: {weather_desc}")
             print(f"Humidity: {humidity}%")
-            print(f"Wind Speed: {wind_speed} km/h")
+            print(f"Wind Speed: {wind_speed} m/s")
 
             speak(f"Weather in {place}:")
             speak(f"Temperature: {temperature}°C")
             speak(f"Weather Description: {weather_desc}")
             speak(f"Humidity: {humidity}%")
-            speak(f"Wind Speed: {wind_speed} km/h")
+            speak(f"Wind Speed: {wind_speed} m/s")
+
         else:
             print("Unable to retrieve weather information.")
-            speak("Unable to retrieve weather information.")
+            # Add your speak function here to output speech
 
     except requests.exceptions.RequestException as e:
         print(f"An error occurred: {e}")
@@ -92,6 +91,7 @@ print("4 - How is the Weather in the city?")
 
 uinp=int(input())
 
+
 #weather call
 if uinp==4:
     n=take()
@@ -100,7 +100,7 @@ if uinp==4:
     get_weather(place_name)
 
 #iiit jabalpur internal locations
-if uinp==3:
+elif uinp==3:
 
     n=take()
     n=n.lower()
@@ -113,7 +113,7 @@ if uinp==3:
         print("Google Maps link: " + maps_link)
         speak("Here is the location on Google Maps")
 
-    elif n=="vivekananda hostel" :
+    elif n=="vivekananda hall of residence" :
         latitude = 23.176256939657186
         longitude = 80.01975674355369
         maps_link = "https://www.google.com/maps/search/?api=1&query=" + str(latitude) + "," + str(longitude)
@@ -121,7 +121,7 @@ if uinp==3:
         print("Google Maps link: " + maps_link)
         speak("Here is the location on Google Maps")
     
-    elif n=="aryabhatta hostel":
+    elif n=="aryabhatta hall of residence":
         latitude = 23.176618056751103
         longitude = 80.02044576405068
         maps_link = "https://www.google.com/maps/search/?api=1&query=" + str(latitude) + "," + str(longitude)
@@ -129,7 +129,7 @@ if uinp==3:
         print("Google Maps link: " + maps_link)
         speak("Here is the location on Google Maps")
     
-    elif n=="panini hostel":
+    elif n=="panini hall of residence":
         latitude = 23.1750997760246
         longitude = 80.02051839814224
         maps_link = "https://www.google.com/maps/search/?api=1&query=" + str(latitude) + "," + str(longitude)
@@ -138,7 +138,7 @@ if uinp==3:
         speak("Here is the location on Google Maps")
 
 
-    elif n=="saraswati hostel":
+    elif n=="saraswati hall of residence":
         latitude = 23.175335972511107
         longitude = 80.02260851129323
         maps_link = "https://www.google.com/maps/search/?api=1&query=" + str(latitude) + "," + str(longitude)
@@ -153,7 +153,7 @@ if uinp==3:
 
 
 #external locations
-if uinp==2:
+elif uinp==2:
 
     n=take()
     n=n.lower()
@@ -176,7 +176,7 @@ if uinp==2:
         speak("Here is the location on Google Maps")
 
 #personal info & about college
-if uinp==1:
+elif uinp==1:
     
     n=take()
     n=n.lower()
@@ -195,6 +195,6 @@ if uinp==1:
             speak(i['about'])
             print(i['about'])
         
-    else:
+    if i not in d and i not in vi:
         print("Information Unavailable. Try visiting the official institute website https://www.iiitdmj.ac.in/ ")
         speak("The information you are seeking is unavailable")
